@@ -339,15 +339,47 @@ body {
 
 /* 三方四正高亮 */
 .palace.san-fang-si-zheng {
-    border-color: var(--gold);
-    background: rgba(241, 196, 15, 0.05);
-    box-shadow: 0 0 20px rgba(241, 196, 15, 0.2);
+    border: 3px solid var(--purple);
+    background: rgba(123, 57, 150, 0.15);
+    box-shadow: 0 0 20px rgba(155, 89, 182, 0.3);
 }
 
 .palace.life-palace {
-    border-color: var(--purple-light);
+    border: 3px solid var(--gold);
     background: rgba(155, 89, 182, 0.1);
-    box-shadow: 0 0 30px rgba(155, 89, 182, 0.3);
+    box-shadow: 0 0 30px rgba(241, 196, 15, 0.4);
+}
+
+/* 中宫命盘总结样式 */
+.palace.center-summary {
+    background: linear-gradient(135deg, rgba(155, 89, 182, 0.2), rgba(241, 196, 15, 0.1));
+    border: 2px solid var(--purple-light);
+    box-shadow: 0 0 25px rgba(155, 89, 182, 0.3);
+}
+
+.palace.center-summary:hover {
+    background: linear-gradient(135deg, rgba(155, 89, 182, 0.25), rgba(241, 196, 15, 0.15));
+    border-color: var(--gold);
+    box-shadow: 0 0 30px rgba(241, 196, 15, 0.4);
+}
+
+/* 星曜类型样式增强 */
+.star.lucky-star {
+    background: rgba(46, 204, 113, 0.2);
+    color: #2ecc71;
+}
+
+.star.lucky-star:hover {
+    background: rgba(46, 204, 113, 0.3);
+}
+
+.star.malefic-star {
+    background: rgba(231, 76, 60, 0.2);
+    color: #e74c3c;
+}
+
+.star.malefic-star:hover {
+    background: rgba(231, 76, 60, 0.3);
 }
 
 /* 解析面板 */

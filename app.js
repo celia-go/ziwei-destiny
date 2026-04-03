@@ -1,6 +1,7 @@
 /**
  * 紫微斗数命盘主应用程序 v3.2
  * 连接UI与算法，实现交互功能
+ * 包含三方四正高亮、星曜详情弹窗、中宫命盘总结等完整功能
  */
 
 // 全局变量
@@ -112,85 +113,177 @@ function displayChart(chart) {
     const calendarText = chart.birthData.calendarType === 'lunar' ? '农历' : '阳历';
     const hourNames = ["子时", "丑时", "寅时", "卯时", "辰时", "巳时", "午时", "未时", "申时", "酉时", "戌时", "亥时"];
 
+    // 计算三方四正宫位
+    const mingPos = chart.mingPalacePosition;
+    const sanFangSiZheng = {
+        ming: mingPos,
+        qianyi: (mingPos + 6) % 12,   // 对宫（迁移宫）
+        caibo: (mingPos + 4) % 12,     // 三合宫1（财帛宫）
+        guanlu: (mingPos + 8) % 12     // 三合宫2（官禄宫）
+    };
+
+    // 获取三方四正宫位名称
+    const sanFangNames = [
+        chart.palaces[0].name,  // 命宫
+        chart.palaces[(0 + 4) % 12].name,  // 财帛宫
+        chart.palaces[(0 + 8) % 12].name,  // 官禄宫
+        chart.palaces[(0 + 6) % 12].name   // 迁移宫（对宫）
+    ];
+
     birthInfo.innerHTML = `
         ${genderText}命 | ${calendarText} ${chart.birthData.year}年${chart.birthData.month}月${chart.birthData.day}日 ${hourNames[chart.birthData.hour]} |
-        ${chart.yearGanZhi}年 | ${chart.bureau}
+        ${chart.yearGanZhi}年 | ${chart.bureau}<br>
+        <span style="color: var(--gold); font-size: 0.9rem;">三方四正：${sanFangNames.join(' · ')}</span>
     `;
 
     // 按照传统命盘布局排列（逆时针）
     const layoutOrder = [4, 5, 6, 7, 3, 8, 2, 9, 1, 10, 0, 11];
 
-    layoutOrder.forEach(i => {
+    layoutOrder.forEach((i, index) => {
         const palace = chart.palaces[i];
-        const palaceDiv = document.createElement('div');
-        palaceDiv.className = 'palace';
-        palaceDiv.dataset.position = palace.position;
 
-        if (palace.isLifePalace) {
-            palaceDiv.classList.add('life-palace');
-        }
+        // 判断是否为命宫
+        const isMingPalace = palace.isLifePalace;
 
-        // 宫位名称
-        const palaceName = document.createElement('div');
-        palaceName.className = 'palace-name';
-        palaceName.textContent = `${palace.name}（${palace.branch}）`;
-        palaceDiv.appendChild(palaceName);
+        // 判断是否为三方四正宫位（命宫除外，因为命宫有自己的样式）
+        const isSanFangSiZheng = !isMingPalace && (
+            palace.position === sanFangSiZheng.qianyi ||
+            palace.position === sanFangSiZheng.caibo ||
+            palace.position === sanFangSiZheng.guanlu
+        );
 
-        // 星曜列表
-        const starsDiv = document.createElement('div');
-        starsDiv.className = 'palace-stars';
-
-        palace.stars.forEach(starName => {
-            const starSpan = document.createElement('span');
-            starSpan.className = 'star';
-            starSpan.textContent = starName;
-            starSpan.onclick = () => showStarInfo(starName);
-
-            // 标记主星
-            if (isMajorStar(starName)) {
-                starSpan.classList.add('major-star');
-            }
-
-            starsDiv.appendChild(starSpan);
-        });
-
-        palaceDiv.appendChild(starsDiv);
-
-        // 添加点击事件高亮三方四正
-        palaceDiv.onclick = (e) => {
-            if (e.target.classList.contains('star')) return; // 如果点击的是星曜，不触发
-            highlightSanFangSiZheng(palace.position);
-        };
+        // 创建宫位元素
+        const palaceDiv = createPalaceElement(palace, isMingPalace, isSanFangSiZheng, index === 5);
 
         zodiacChart.appendChild(palaceDiv);
     });
 }
 
 /**
- * 高亮三方四正
+ * 创建宫位元素
+ * @param {Object} palace - 宫位数据
+ * @param {Boolean} isMingPalace - 是否为命宫
+ * @param {Boolean} isSanFangSiZheng - 是否为三方四正
+ * @param {Boolean} isCenterPosition - 是否为中央位置（用于显示命盘总结）
+ * @returns {HTMLElement} 宫位DOM元素
  */
-function highlightSanFangSiZheng(palacePosition) {
-    // 清除之前的高亮
-    document.querySelectorAll('.palace').forEach(p => {
-        p.classList.remove('san-fang-si-zheng');
-    });
+function createPalaceElement(palace, isMingPalace, isSanFangSiZheng, isCenterPosition) {
+    const palaceDiv = document.createElement('div');
+    palaceDiv.className = 'palace';
+    palaceDiv.dataset.position = palace.position;
 
-    // 获取三方四正宫位
-    const positions = ZiweiDoushu.getSanFangSiZheng(palacePosition);
+    // 为命宫添加特殊样式（金色边框）
+    if (isMingPalace) {
+        palaceDiv.classList.add('life-palace');
+    }
 
-    // 高亮相关宫位
-    positions.forEach(pos => {
-        const palace = document.querySelector(`.palace[data-position="${pos}"]`);
-        if (palace) {
-            palace.classList.add('san-fang-si-zheng');
+    // 为三方四正添加特殊样式（紫色边框和深色背景）
+    if (isSanFangSiZheng) {
+        palaceDiv.classList.add('san-fang-si-zheng');
+    }
+
+    // 如果是中央位置，显示命盘总结而非普通宫位
+    if (isCenterPosition) {
+        const summary = generateChartSummary(currentChart);
+        palaceDiv.innerHTML = summary;
+        palaceDiv.classList.add('center-summary');
+        return palaceDiv;
+    }
+
+    // 宫位名称
+    const palaceName = document.createElement('div');
+    palaceName.className = 'palace-name';
+    palaceName.textContent = `${palace.name}（${palace.branch}）`;
+    palaceDiv.appendChild(palaceName);
+
+    // 星曜列表
+    const starsDiv = document.createElement('div');
+    starsDiv.className = 'palace-stars';
+
+    palace.stars.forEach(starName => {
+        const starSpan = document.createElement('span');
+        starSpan.className = 'star';
+        starSpan.textContent = starName;
+
+        // 添加点击事件显示星曜详情
+        starSpan.onclick = (e) => {
+            e.stopPropagation();
+            displayStarInfo(starName);
+        };
+
+        // 标记主星
+        if (isMajorStar(starName)) {
+            starSpan.classList.add('major-star');
         }
+
+        // 标记吉星
+        if (isLuckyStar(starName)) {
+            starSpan.classList.add('lucky-star');
+        }
+
+        // 标记煞星
+        if (isMaleficStar(starName)) {
+            starSpan.classList.add('malefic-star');
+        }
+
+        starsDiv.appendChild(starSpan);
     });
+
+    palaceDiv.appendChild(starsDiv);
+
+    return palaceDiv;
 }
 
 /**
- * 显示星曜详细信息
+ * 生成命盘总结（中宫显示）
+ * @param {Object} chart - 命盘数据
+ * @returns {String} HTML字符串
  */
-function showStarInfo(starName) {
+function generateChartSummary(chart) {
+    // 获取命宫主星
+    const lifePalace = chart.palaces[0];
+    const majorStars = lifePalace.stars.filter(s => isMajorStar(s));
+    const mingStarsText = majorStars.length > 0 ? majorStars.join('、') : '无主星';
+
+    // 获取三方宫位的星曜
+    const mingPos = chart.mingPalacePosition;
+    const caiboPalace = chart.palaces.find(p => p.position === (mingPos + 4) % 12);
+    const guanluPalace = chart.palaces.find(p => p.position === (mingPos + 8) % 12);
+    const qianyiPalace = chart.palaces.find(p => p.position === (mingPos + 6) % 12);
+
+    // 收集三方见星
+    const sanFangStars = new Set();
+    [caiboPalace, guanluPalace, qianyiPalace].forEach(palace => {
+        palace.stars.filter(s => isMajorStar(s)).forEach(s => sanFangStars.add(s));
+    });
+
+    const sanFangText = sanFangStars.size > 0 ? Array.from(sanFangStars).join('、') : '无主星';
+
+    return `
+        <div style="display: flex; flex-direction: column; justify-content: center; height: 100%; text-align: center; padding: 1rem;">
+            <div style="font-size: 1.5rem; color: var(--gold); font-weight: bold; margin-bottom: 1rem;">命盘</div>
+            <div style="font-size: 0.95rem; line-height: 1.8; color: var(--text-light);">
+                <div style="margin-bottom: 0.8rem;">
+                    <span style="color: var(--purple-light);">命主：</span>
+                    <span style="color: var(--gold);">${mingStarsText}</span>
+                </div>
+                <div style="margin-bottom: 0.8rem;">
+                    <span style="color: var(--purple-light);">${chart.bureau}</span>
+                </div>
+                <div style="font-size: 0.85rem; color: var(--text-muted);">
+                    <span style="color: var(--purple-light);">三方见：</span>
+                    <br>${sanFangText}
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+/**
+ * 显示星曜详细信息（模态弹窗）
+ * @param {String} starName - 星曜名称
+ */
+function displayStarInfo(starName) {
     const info = getStarInfo(starName);
     const modal = document.getElementById('starModal');
     const modalBody = document.getElementById('starModalBody');
@@ -198,7 +291,15 @@ function showStarInfo(starName) {
     let html = `<h2>${info.name}</h2>`;
 
     if (info.category) {
-        html += `<p><strong>分类：</strong>${info.category} | <strong>五行：</strong>${info.element || '复合'} | <strong>性质：</strong>${info.nature === '吉' ? '吉星' : info.nature === '凶' ? '煞星' : '中性'}</p>`;
+        html += `<p><strong>分类：</strong>${info.category}`;
+        if (info.element) {
+            html += ` | <strong>五行：</strong>${info.element}`;
+        }
+        if (info.nature) {
+            const natureText = info.nature === '吉' ? '吉星' : info.nature === '凶' ? '煞星' : '中性';
+            html += ` | <strong>性质：</strong>${natureText}`;
+        }
+        html += `</p>`;
     }
 
     html += `<h3>星曜特质</h3><p>${info.description}</p>`;
@@ -266,17 +367,19 @@ function generateAnalysis(chart) {
     html += `<p>您的命宫位于<strong>${lifePalace.branch}</strong>宫，五行属<strong>${chart.bureau}</strong>。</p>`;
 
     if (lifeStars.length > 0) {
-        html += '<p>命宫主星：<strong>' + lifeStars.filter(s => isMajorStar(s)).join('、') + '</strong></p>';
-
-        // 根据主星分析性格
         const majorStars = lifeStars.filter(s => isMajorStar(s));
         if (majorStars.length > 0) {
+            html += '<p>命宫主星：<strong>' + majorStars.join('、') + '</strong></p>';
+
+            // 根据主星分析性格
             const mainStar = getStarInfo(majorStars[0]);
             html += `<h4>性格特质</h4><p>${mainStar.personality || '性格分析暂缺'}</p>`;
             html += `<h4>事业运势</h4><p>${mainStar.career || '事业分析暂缺'}</p>`;
             html += `<h4>财运状况</h4><p>${mainStar.wealth || '财运分析暂缺'}</p>`;
             html += `<h4>感情婚姻</h4><p>${mainStar.love || '感情分析暂缺'}</p>`;
             html += `<h4>健康提示</h4><p>${mainStar.health || '健康分析暂缺'}</p>`;
+        } else {
+            html += '<p>命宫无主星，但有辅星照耀。</p>';
         }
     } else {
         html += '<p>命宫无主星，需参考对宫（迁移宫）的星曜来论命。</p>';
@@ -472,4 +575,5 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     console.log('紫微斗数命盘系统 v3.2 加载完成');
+    console.log('功能：三方四正高亮 | 星曜详情弹窗 | 命盘中宫总结');
 });
