@@ -1,0 +1,602 @@
+/* 紫微斗数命盘 - 现代深色主题样式 v3.2 */
+
+:root {
+    --bg-dark: #0a0a1a;
+    --bg-card: rgba(20, 20, 40, 0.9);
+    --bg-hover: rgba(40, 40, 80, 0.95);
+    --purple: #9b59b6;
+    --purple-light: #bb7dd6;
+    --purple-dark: #7b3996;
+    --gold: #f1c40f;
+    --gold-dark: #d4a809;
+    --text-light: #ecf0f1;
+    --text-muted: #95a5a6;
+    --border: rgba(155, 89, 182, 0.3);
+    --shadow: 0 4px 20px rgba(155, 89, 182, 0.2);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+    background: var(--bg-dark);
+    color: var(--text-light);
+    line-height: 1.6;
+    min-height: 100vh;
+    position: relative;
+    overflow-x: hidden;
+}
+
+/* 星空背景动画 */
+.stars-background {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    background:
+        radial-gradient(2px 2px at 20% 30%, white, transparent),
+        radial-gradient(2px 2px at 60% 70%, white, transparent),
+        radial-gradient(1px 1px at 50% 50%, white, transparent),
+        radial-gradient(1px 1px at 80% 10%, white, transparent),
+        radial-gradient(2px 2px at 90% 60%, white, transparent),
+        radial-gradient(1px 1px at 33% 85%, white, transparent),
+        radial-gradient(2px 2px at 75% 25%, white, transparent),
+        linear-gradient(to bottom, #0a0a1a 0%, #1a0a2a 50%, #0a0a1a 100%);
+    background-size: 200% 200%, 200% 200%, 200% 200%, 200% 200%, 200% 200%, 200% 200%, 200% 200%, 100% 100%;
+    animation: stars 120s linear infinite;
+}
+
+@keyframes stars {
+    0% { background-position: 0% 0%, 0% 0%, 0% 0%, 0% 0%, 0% 0%, 0% 0%, 0% 0%; }
+    100% { background-position: 100% 100%, -100% 100%, 50% -50%, -100% -100%, 100% 50%, 50% 100%, -50% -50%; }
+}
+
+.container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+/* 标题区 */
+.header {
+    text-align: center;
+    margin-bottom: 3rem;
+    padding: 2rem 0;
+}
+
+.title {
+    font-size: 3rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, var(--purple-light), var(--gold));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 0.5rem;
+}
+
+.title-icon {
+    display: inline-block;
+    animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.6; transform: scale(0.9); }
+}
+
+.subtitle {
+    font-size: 1.2rem;
+    color: var(--text-muted);
+    letter-spacing: 0.3rem;
+}
+
+/* 输入面板 */
+.input-panel {
+    background: var(--bg-card);
+    border-radius: 20px;
+    padding: 2.5rem;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border);
+    backdrop-filter: blur(10px);
+}
+
+.section-title {
+    font-size: 1.8rem;
+    margin-bottom: 2rem;
+    text-align: center;
+    color: var(--purple-light);
+}
+
+.calendar-notice {
+    background: rgba(241, 196, 15, 0.1);
+    border-left: 4px solid var(--gold);
+    padding: 1rem 1.5rem;
+    margin-bottom: 2rem;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.notice-icon {
+    font-size: 1.5rem;
+}
+
+.calendar-notice p {
+    margin: 0;
+    color: var(--text-light);
+    line-height: 1.6;
+}
+
+.calendar-notice strong {
+    color: var(--gold);
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-group label {
+    margin-bottom: 0.5rem;
+    color: var(--purple-light);
+    font-weight: 500;
+}
+
+.label-hint {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    font-weight: normal;
+}
+
+.input-field, .input-field-small {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0.8rem;
+    color: var(--text-light);
+    font-size: 1rem;
+    transition: all 0.3s;
+}
+
+.input-field-small {
+    display: inline-block;
+    width: auto;
+    min-width: 120px;
+}
+
+.input-field:focus, .input-field-small:focus {
+    outline: none;
+    border-color: var(--purple-light);
+    box-shadow: 0 0 0 3px rgba(155, 89, 182, 0.1);
+}
+
+.input-field option {
+    background: var(--bg-card);
+    color: var(--text-light);
+}
+
+/* 按钮 */
+.btn-primary, .btn-secondary, .btn-back {
+    border: none;
+    border-radius: 10px;
+    padding: 1rem 2rem;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    justify-content: center;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, var(--purple), var(--purple-dark));
+    color: white;
+    width: 100%;
+    box-shadow: 0 4px 15px rgba(155, 89, 182, 0.4);
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 25px rgba(155, 89, 182, 0.6);
+}
+
+.btn-secondary {
+    background: rgba(155, 89, 182, 0.2);
+    color: var(--purple-light);
+    border: 1px solid var(--purple-light);
+}
+
+.btn-secondary:hover {
+    background: rgba(155, 89, 182, 0.3);
+    transform: translateY(-2px);
+}
+
+.btn-back {
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text-muted);
+    border: 1px solid var(--border);
+    margin-top: 2rem;
+}
+
+.btn-back:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--text-light);
+}
+
+.btn-icon {
+    font-size: 1.2rem;
+}
+
+/* 命盘面板 */
+.chart-panel {
+    animation: fadeIn 0.6s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.chart-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.birth-info {
+    color: var(--text-muted);
+    font-size: 1rem;
+}
+
+/* 十二宫格 */
+.zodiac-chart {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+    margin-bottom: 3rem;
+    max-width: 1200px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.palace {
+    background: var(--bg-card);
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    padding: 1.2rem;
+    min-height: 180px;
+    position: relative;
+    transition: all 0.3s;
+    backdrop-filter: blur(10px);
+}
+
+.palace:hover {
+    background: var(--bg-hover);
+    border-color: var(--purple-light);
+    transform: translateY(-5px);
+    box-shadow: var(--shadow);
+}
+
+.palace-name {
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: var(--gold);
+    margin-bottom: 0.8rem;
+    text-align: center;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border);
+}
+
+.palace.life-palace .palace-name {
+    color: var(--purple-light);
+    font-size: 1.3rem;
+}
+
+.palace-stars {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    font-size: 0.9rem;
+}
+
+.star {
+    padding: 0.3rem 0.6rem;
+    border-radius: 6px;
+    background: rgba(155, 89, 182, 0.1);
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.star:hover {
+    background: rgba(155, 89, 182, 0.3);
+    transform: translateX(5px);
+}
+
+.star.major-star {
+    background: rgba(241, 196, 15, 0.2);
+    color: var(--gold);
+    font-weight: 600;
+}
+
+.star.major-star:hover {
+    background: rgba(241, 196, 15, 0.3);
+}
+
+/* 三方四正高亮 */
+.palace.san-fang-si-zheng {
+    border-color: var(--gold);
+    background: rgba(241, 196, 15, 0.05);
+    box-shadow: 0 0 20px rgba(241, 196, 15, 0.2);
+}
+
+.palace.life-palace {
+    border-color: var(--purple-light);
+    background: rgba(155, 89, 182, 0.1);
+    box-shadow: 0 0 30px rgba(155, 89, 182, 0.3);
+}
+
+/* 解析面板 */
+.interpretation-panel {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 1.5rem;
+    margin-top: 2rem;
+}
+
+.interpretation-card {
+    background: var(--bg-card);
+    border-radius: 15px;
+    padding: 2rem;
+    border: 1px solid var(--border);
+    transition: all 0.3s;
+    backdrop-filter: blur(10px);
+}
+
+.interpretation-card:hover {
+    border-color: var(--purple-light);
+    transform: translateY(-5px);
+    box-shadow: var(--shadow);
+}
+
+.card-title {
+    font-size: 1.3rem;
+    color: var(--purple-light);
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.card-icon {
+    font-size: 1.5rem;
+}
+
+.analysis-content {
+    color: var(--text-light);
+    line-height: 1.8;
+}
+
+.analysis-content p {
+    margin-bottom: 1rem;
+}
+
+.analysis-content strong {
+    color: var(--gold);
+}
+
+.analysis-content ul {
+    margin-left: 1.5rem;
+    margin-top: 0.5rem;
+}
+
+.analysis-content li {
+    margin-bottom: 0.5rem;
+}
+
+/* 年份和日期选择器 */
+.year-selector, .day-selector {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+}
+
+.year-selector label, .day-selector label {
+    color: var(--text-muted);
+}
+
+/* 风水板块 */
+.fengshui-section {
+    margin-top: 4rem;
+}
+
+/* 星曜详情弹窗 */
+.star-modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8);
+    animation: fadeIn 0.3s;
+}
+
+.star-modal-content {
+    background: var(--bg-card);
+    margin: 5% auto;
+    padding: 2.5rem;
+    border: 2px solid var(--purple-light);
+    border-radius: 20px;
+    width: 90%;
+    max-width: 700px;
+    max-height: 80vh;
+    overflow-y: auto;
+    position: relative;
+    box-shadow: 0 10px 50px rgba(155, 89, 182, 0.5);
+    animation: slideDown 0.4s;
+}
+
+@keyframes slideDown {
+    from { opacity: 0; transform: translateY(-50px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.star-modal-close {
+    color: var(--text-muted);
+    position: absolute;
+    right: 1.5rem;
+    top: 1.5rem;
+    font-size: 2rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.star-modal-close:hover {
+    color: var(--gold);
+    transform: rotate(90deg);
+}
+
+#starModalBody h2 {
+    color: var(--gold);
+    margin-bottom: 1.5rem;
+    font-size: 2rem;
+}
+
+#starModalBody h3 {
+    color: var(--purple-light);
+    margin-top: 1.5rem;
+    margin-bottom: 1rem;
+    font-size: 1.3rem;
+}
+
+#starModalBody p {
+    line-height: 1.8;
+    margin-bottom: 1rem;
+    color: var(--text-light);
+}
+
+#starModalBody ul {
+    margin-left: 2rem;
+    margin-bottom: 1rem;
+}
+
+#starModalBody li {
+    margin-bottom: 0.5rem;
+    line-height: 1.6;
+}
+
+/* 隐藏类 */
+.hidden {
+    display: none !important;
+}
+
+/* 页脚 */
+.footer {
+    text-align: center;
+    padding: 2rem;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    margin-top: 4rem;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+    .container {
+        padding: 1rem;
+    }
+
+    .title {
+        font-size: 2rem;
+    }
+
+    .subtitle {
+        font-size: 1rem;
+        letter-spacing: 0.2rem;
+    }
+
+    .input-panel {
+        padding: 1.5rem;
+    }
+
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .zodiac-chart {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.5rem;
+    }
+
+    .palace {
+        padding: 0.8rem;
+        min-height: 140px;
+    }
+
+    .palace-name {
+        font-size: 0.95rem;
+    }
+
+    .palace-stars {
+        font-size: 0.8rem;
+    }
+
+    .interpretation-panel {
+        grid-template-columns: 1fr;
+    }
+
+    .interpretation-card {
+        padding: 1.5rem;
+    }
+
+    .star-modal-content {
+        width: 95%;
+        padding: 1.5rem;
+        margin: 10% auto;
+    }
+
+    .year-selector, .day-selector {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .input-field-small {
+        width: 100%;
+    }
+}
+
+/* 滚动条样式 */
+::-webkit-scrollbar {
+    width: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--bg-dark);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--purple);
+    border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--purple-light);
+}
