@@ -77,7 +77,7 @@ function generateChart() {
 
     // 生成命盘
     try {
-        currentChart = new ZiweiChartAccurate(birthData);
+        currentChart = ZiweiDoushu.createZiweiChart(birthData);
 
         // 显示命盘
         displayChart(currentChart);
@@ -114,7 +114,7 @@ function displayChart(chart) {
     const hourNames = ["子时", "丑时", "寅时", "卯时", "辰时", "巳时", "午时", "未时", "申时", "酉时", "戌时", "亥时"];
 
     // 计算三方四正宫位
-    const mingPos = chart.mingPalacePosition;
+    const mingPos = chart.lifePalacePosition;
     const sanFangSiZheng = {
         ming: mingPos,
         qianyi: (mingPos + 6) % 12,   // 对宫（迁移宫）
@@ -246,7 +246,7 @@ function generateChartSummary(chart) {
     const mingStarsText = majorStars.length > 0 ? majorStars.join('、') : '无主星';
 
     // 获取三方宫位的星曜
-    const mingPos = chart.mingPalacePosition;
+    const mingPos = chart.lifePalacePosition;
     const caiboPalace = chart.palaces.find(p => p.position === (mingPos + 4) % 12);
     const guanluPalace = chart.palaces.find(p => p.position === (mingPos + 8) % 12);
     const qianyiPalace = chart.palaces.find(p => p.position === (mingPos + 6) % 12);
