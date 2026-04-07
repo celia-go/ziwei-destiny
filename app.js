@@ -51,14 +51,14 @@ function generateChart() {
     let lunarDate;
     if (calendarType === 'solar') {
         try {
-            lunarDate = Lunar.solar2lunar(year, month, day);
+            lunarDate = solar2lunar(year, month, day);
             if (!lunarDate) {
                 alert('日期转换失败，请检查输入的阳历日期是否正确！');
                 return;
             }
-            year = lunarDate.lYear;
-            month = lunarDate.lMonth;
-            day = lunarDate.lDay;
+            year = lunarDate.year;
+            month = lunarDate.month;
+            day = lunarDate.day;
         } catch (e) {
             alert('日期转换出错：' + e.message);
             return;
@@ -77,7 +77,7 @@ function generateChart() {
 
     // 生成命盘
     try {
-        currentChart = ZiweiDoushu.createZiweiChart(birthData);
+        currentChart = new ZiweiChartAccurate(birthData);
 
         // 显示命盘
         displayChart(currentChart);
